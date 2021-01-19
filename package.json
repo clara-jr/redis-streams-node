@@ -1,0 +1,13 @@
+{
+  "name": "redis-streams-node",
+  "version": "1.0.0",
+  "description": "Event-Driven Architecture with Redis Streams + Node.js",
+  "keywords": [
+    "redis",
+    "streams"
+  ],
+  "dependencies": {
+    "async": "^3.1.0",
+    "redis": "^2.8.0"
+  }
+}
