@@ -2,9 +2,11 @@
 
 This project shows how to use [Redis Node client](http://redis.js.org/) to publish and consume messages using consumer groups subscribed to multiple streams.
 
-This example represents two test-environments:
+This example represents three test-environments:
 
 - one_consumer_group: single consumer group subscribed to multiple streams
+
+- one_consumer_group_ack: single consumer group subscribed to multiple streams with ACK & pending messages
 
 - multiple_consumer_groups: multiple consumer groups subscribed to multiple shared streams.
 

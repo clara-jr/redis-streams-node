@@ -11,7 +11,7 @@ const CONSUMER_ID = 'consumerId'
 const createGroup = (streamsKey) => {
   redisClient.xgroup('CREATE', streamsKey, GROUP_ID, '$', 'MKSTREAM', (err) => {
     if (err) {
-      if (err.code == 'BUSYGROUP' ) {
+      if (err.code == 'BUSYGROUP') {
         console.log(`Group ${GROUP_ID} already exists at stream ${streamsKey}`)
       } else {
         console.log(err)
@@ -24,7 +24,7 @@ createGroup(STREAMS_KEY_LICENSE)
 
 // read messages from streams
 const readMessage = (streamsKey, next) => {
-  redisClient.xreadgroup('GROUP', GROUP_ID,  CONSUMER_ID , 'BLOCK', 1000, 'COUNT', 10, 'NOACK', 'STREAMS', streamsKey, '>', (err, stream) => {
+  redisClient.xreadgroup('GROUP', GROUP_ID, CONSUMER_ID, 'BLOCK', 1000, 'COUNT', 10, 'NOACK', 'STREAMS', streamsKey, '>', (err, stream) => {
     if (err) {
       next(err)
     }
@@ -37,7 +37,7 @@ const readMessage = (streamsKey, next) => {
         const id = message[0]
         const values = message[1]
         let messageObject = { id : id }
-        for (let i = 0;  i < values.length; i = i + 2) {
+        for (let i = 0; i < values.length; i = i + 2) {
           messageObject[values[i]] = values[i+1]
         }
         console.log(`Action: ${messageObject.action}`)
