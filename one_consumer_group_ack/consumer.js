@@ -20,6 +20,18 @@ const createGroup = (streamsKey) => {
 }
 createGroup(STREAMS_KEY_USER)
 
+const parseMessage = (message) => {
+  const id = message[0]
+  const values = message[1]
+  let messageObject = { id : id }
+  for (let i = 0; i < values.length; i = i + 2) {
+    messageObject[values[i]] = values[i+1]
+  }
+  console.log(`Action: ${messageObject.action}`)
+  console.log(`Message: ${JSON.stringify(messageObject)}`)
+  return { id, messageObject }
+}
+
 // claim messages from pending streams
 const claimMessage = (streamsKey, next) => {
   redisClient.xpending(streamsKey, GROUP_ID, (err, pendingMessages) => {
@@ -35,31 +47,24 @@ const claimMessage = (streamsKey, next) => {
         if (claimMessage && claimMessage.length) {
           console.log(`Claiming messages from ${streamsKey} stream`)
           // convert the message into a JSON Object
-          const id = claimMessage[0][0]
-          const values = claimMessage[0][1]
-          let messageObject = { id : id }
-          for (let i = 0; i < values.length; i = i + 2) {
-            messageObject[values[i]] = values[i+1]
-          }
-          console.log(`Action: ${messageObject.action}`)
-          console.log(`Message: ${JSON.stringify(messageObject)}`)
+          const { id, messageObject } = parseMessage(claimMessage[0])
           redisClient.xack(streamsKey, GROUP_ID, id, (err) => {
             if (err) {
               console.log(`ACK ERROR: ${err}`)
               next(err)
             }
             console.log(`✅ CLAIM STREAM: ${streamsKey}, ACTION: ${messageObject.action}, ID: ${id}`)
-            next()
+            readMessage(STREAMS_KEY_USER, next)
           })
         } else {
           console.log(`Unable to claim ${pendingMessages[1]}`)
-          next()
+          readMessage(STREAMS_KEY_USER, next)
         }
       })
     }
     else {
       console.log('No pending')
-      next()
+      readMessage(STREAMS_KEY_USER, next)
     }
   })
 }
@@ -76,14 +81,7 @@ const readMessage = (streamsKey, next) => {
       // print all messages
       for (message of messages) {
         // convert the message into a JSON Object
-        const id = message[0]
-        const values = message[1]
-        let messageObject = { id : id }
-        for (let i = 0; i < values.length; i = i + 2) {
-          messageObject[values[i]] = values[i+1]
-        }
-        console.log(`Action: ${messageObject.action}`)
-        console.log(`Message: ${JSON.stringify(messageObject)}`)
+        const { id, messageObject } = parseMessage(message)
         redisClient.xack(streamsKey, GROUP_ID, id, (err) => {
           if (err) {
             console.log(`ACK ERROR: ${err}`)
@@ -100,10 +98,10 @@ const readMessage = (streamsKey, next) => {
     }
   })
 }
+
 async.forever(
   (next) => {
     claimMessage(STREAMS_KEY_USER, next)
-    readMessage(STREAMS_KEY_USER, next)
   },
   (err) => {
     console.log(`ERROR: ${err}`)
