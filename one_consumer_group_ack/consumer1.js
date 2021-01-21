@@ -6,6 +6,8 @@ const STREAMS_KEY_USER = 'USER'
 const GROUP_ID = 'groupId'
 const CONSUMER_ID = 'consumerId'
 
+// This consumer does confirm the messages with ACK
+
 // create one group per stream you want to receive messages from
 const createGroup = (streamsKey) => {
   redisClient.xgroup('CREATE', streamsKey, GROUP_ID, '$', 'MKSTREAM', (err) => {

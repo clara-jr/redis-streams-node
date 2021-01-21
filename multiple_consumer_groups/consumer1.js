@@ -47,6 +47,7 @@ const readMessage = (streamsKey, next) => {
     next()
   })
 }
+
 async.forever(
   (next) => {
     readMessage(STREAMS_KEY_USER, next)
